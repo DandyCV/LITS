@@ -1,3 +1,2 @@
 # LITS
 Lits(Python)
-LitsCV
