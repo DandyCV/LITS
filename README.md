@@ -1,3 +1,3 @@
 # LITS
 Lits(Python)
-1st chanfes done
+1st changes done
