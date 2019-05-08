@@ -8,6 +8,8 @@ def f(a, b):    # mul2(f)(3,3)
     return a + b
 print(f(3, 3))
 
+
+
 def mul(a):
     def inner(b):
         return a + b
@@ -30,6 +32,8 @@ p()
 p()
 p()
 print(p.count)
+
+
 
 def dec(func):
         def inner(*arg, **kw):
