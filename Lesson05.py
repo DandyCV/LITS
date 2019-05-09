@@ -8,7 +8,9 @@ print (check_float(s))
 
 def decor(func):
     def inner(*args, **kw):
-        print ('\n', func(),'\n' )
+        print('\n')
+        func()
+        print('\n')
     return inner
 
 @decor
@@ -24,6 +26,3 @@ def smart_input():
                                             #def max_input():
                                             #print(max(map(int,input().split())))
 smart_input()
-
-
-
