@@ -8,9 +8,7 @@ print (check_float(s))
 
 def decor(func):
     def inner(*args, **kw):
-        print ('\n')
-        func()
-        print('\n')
+        print ('\n', func(),'\n' )
     return inner
 
 @decor
