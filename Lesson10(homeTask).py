@@ -17,7 +17,7 @@ class Stek:
 
     @property
     def length(self):
-        return 'Глибина стеку =' + ' ' + str(len(self.stek))
+        return 'Глибина стеку = ' + str(len(self.stek))
 
     @property
     def is_empty(self):
