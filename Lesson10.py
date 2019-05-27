@@ -18,4 +18,5 @@ class Rectangle():
 
 
 Rectangle.stat(4, 6)
+
 Rectangle(3, 5).prop
