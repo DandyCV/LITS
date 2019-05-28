@@ -1,5 +1,5 @@
 class Stack:
-    '''Стек глибино 5 елементів'''
+    """Стек глибино 5 елементів"""
     def __init__(self, stack = []):
         self.stack = stack
 
