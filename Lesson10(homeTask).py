@@ -1,11 +1,16 @@
 class Stek:
+    '''Стек глибино 5 елементів'''
     def __init__(self, stek = []):
         self.stek = stek
 
     def push(self, new_element):
-        print('Додаю в стек елемент ', new_element)
-        self.stek.append(new_element)
-        return self.stek
+        if len(self.stek) < 5:
+            print('Додаю в стек елемент ', new_element)
+            self.stek.append(new_element)
+            return self.stek
+        else:
+            print('Стек переповнений, елемент ', new_element, ' не додано.')
+            return self.stek
 
     @property
     def pop(self):
@@ -13,7 +18,7 @@ class Stek:
             print('Видаляю зі стеку елемент ', self.stek.pop())
             return self.stek
         else:
-            return 'Стек вже порожній'
+            return 'В стеку не залишилось елементів.'
 
     @property
     def length(self):
