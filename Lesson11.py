@@ -65,17 +65,3 @@ def class_decorator(cls):
 class New_class:
     pass
 
-
-class My_dict(dict):
-    def __init__(self, my_dict):
-        self.my_dict = my_dict
-
-    # my_dict += {a : a}  += повинно додавати пару ключ : значення у словник
-    def __iadd__(self, new_k_v):
-        if isinstance(new_k_v, dict) and not isinstance(new_k_v, My_dict):
-            return self.my_dict.update(new_k_v)
-        return self.my_dict
-
-
-m = My_dict({'a': 1, 'b': 2})
-print(m += {'c': 3})
