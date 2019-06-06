@@ -50,14 +50,18 @@
 def gen1():
     n = yield
     while True:
-        yield 3 * n -3
-        if n >= 10000:
-            break
+        yield n
+        n = 3 * n -3
+
 
 
 g = gen1()
-#print(g.send(None))
+print(g.send(None))
+print(g.send(10))
 for i in g:
-    print(i)
+    if i >= 1000:
+        raise StopIteration
+    else:
+        print(i)
 
 
