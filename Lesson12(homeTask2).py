@@ -1,23 +1,26 @@
 import os
 class AOpen:
 
-    def __init__(self, file_name, mode = 'rw', encoding = 'utf-8'):
+    def __init__(self, file_name, mode = 'r', encoding = 'utf-8'):
         self.file_name = file_name
         self.encoding = encoding
-        if mode == 'r': self.mode = os.O_RDONLY
-        elif mode == 'w': self.mode = os.O_WRONLY
-        elif mode == 'rw': self.mode = os.O_RDWR
-        elif mode == 'a': self.mode = os.O_WRONLY | os.O_APPEND
-        elif mode == 'ra': self.mode = os.O_RDWR | os.O_APPEND
-        elif mode == 'wa': self.mode = os.O_WRONLY | os.O_APPEND
+        mode_dict = {
+            'r': os.O_RDONLY,
+            'w': os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+            'a': os.O_WRONLY | os.O_CREAT | os.O_APPEND,
+            'rw': os.O_RDWR | os.O_CREAT,
+            'wr': os.O_RDWR | os.O_CREAT | os.O_TRUNC,
+            'ra': os.O_RDWR | os.O_APPEND
+        }
+        self.mode = mode_dict.get(mode, os.O_RDONLY)
         self.fd = (os.open(self.file_name, self.mode))
-        self.file = os.fdopen(self.fd)
 
     def __enter__(self):
-        return self.file
+        self.file = os.fdopen(self.fd)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.file.close()
+        os.close(self.fd)
 
     def read(self, bytes = None):
         stat_info = os.stat(self.file_name)
@@ -72,18 +75,23 @@ class AOpen:
             os.write(self.fd, text_line)
 
     def close(self):
-        self.fd.close()
+        os.close(self.fd)
 
 
-
-file = AOpen('text.txt', 'ra', encoding = 'utf-8')
+#file = AOpen('text.txt', 'rw', encoding = 'utf-8')
 #file.write('Hello!')
 #print(file.read())
 #file.seek(0)
 #print(file.tell())
-file.writelines(['Good Morning!', 'Good Night'])
+#file.writelines(['Good Morning!', 'Good Night'])
 #print(file.readline())
+#file.close()
+
 #with AOpen('text.txt', 'ra', encoding = 'utf-8') as file:
-    #print(file.read())
-    #file.writelines(['Good Morning!', 'Good Night'])
-    #print(file.readlines())
+#     file.write('Hello!')
+#     print(file.read())
+#     file.seek(15)
+#     print(file.tell())
+#     file.writelines(['Good Morning!', 'Good Night'])
+#     file.writeline('Good Morning!')
+#     print(file.readlines())
