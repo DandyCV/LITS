@@ -1,0 +1,4 @@
+DEBUG:root:started function d
+DEBUG:root:started function d
+DEBUG:root:d return 1.0
+DEBUG:root:done
