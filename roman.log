@@ -1,0 +1,11 @@
+DEBUG:root:started class RomanNumber
+DEBUG:RomanNumber:takes arguments: 631, 16
+DEBUG:RomanNumber:self.value takes 1585
+DEBUG:RomanNumber:def roman start
+DEBUG:RomanNumber:self.value valid
+DEBUG:RomanNumber:def roman return MDLXXXV
+DEBUG:RomanNumber:__str__ return MDLXXXV
+DEBUG:RomanNumber:def roman start
+DEBUG:RomanNumber:self.value valid
+DEBUG:RomanNumber:def roman return MDLXXXV
+DEBUG:root:done
