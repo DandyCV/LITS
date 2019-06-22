@@ -40,7 +40,7 @@ def weather(city):
 Атмосферний тиск - {main[pressure]} мм.рт.ст
 Вологість повітря - {main[humidity]}%
 Швидкіть вітру - {wind[speed]} м/с
-# Напрямок вітру - {wind[deg]}'''.format(**data))
+Напрямок вітру - {wind[deg]}'''.format(**data))
 
 
-weather('Moscow')
+weather('Chernivtsi')
