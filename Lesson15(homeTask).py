@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 def weather(city):
 
     key = 'b64a35cdd04a1caa08cf1d64cc08e0b1'            #персональний ключ для доступу до API
