@@ -6,11 +6,11 @@ parser = argparse.ArgumentParser()   #зчитує аргументи коман
 #                                                             #'-l', action='source_true' - значення l запишеться True
 parser.add_argument('-l', '--len', dafault='len')            #-len запишеться 'len' по дефоту
 #
-# parser.add_argument('-l', '--len', dest='')                  #dest - дефолтне значення для зовн. виклику
+# parser.add_argument('-l', '--len', dest='')                  #dest - ім'я аргументу
 
 # parser.add_argument('-l', '--len', choise=('345', 345))
 
 print(parser.parser_args().len)
 
 # python weather.py -lang(language - ua), -name(city - Чернівці)
-select - бібліотека для сокетів
+#select - бібліотека для сокетів

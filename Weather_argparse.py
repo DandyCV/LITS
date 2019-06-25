@@ -1,12 +1,13 @@
 import requests
 import json
+import argparse
 
 
-def weather(city):
+def weather(city, language):
 
     params = {
         'APPID': 'b64a35cdd04a1caa08cf1d64cc08e0b1',        #персональний ключ для доступу до API
-        'lang': 'ua',
+        'lang': language,
         'q': city
 }
     r = requests.get('https://api.openweathermap.org/data/2.5/weather?', params=params)
@@ -45,4 +46,13 @@ def weather(city):
 Напрямок вітру - {wind[deg]}'''.format(**data))
 
 
-weather('Чернівці')
+def parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-name', '--city_name', dest='city_name', type=str)
+    parser.add_argument('-lang', '--language', dest='language', default='ua', type=str)
+    args = parser.parse_args()
+
+    weather(args.city_name, args.language)
+
+
+parser()
