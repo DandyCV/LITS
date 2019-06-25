@@ -46,7 +46,7 @@ def weather(city, language):
 Напрямок вітру - {wind[deg]}'''.format(**data))
 
 
-def parser():
+def weather_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-name', '--city_name', dest='city_name', type=str)
     parser.add_argument('-lang', '--language', dest='language', default='ua', type=str)
@@ -55,4 +55,4 @@ def parser():
     weather(args.city_name, args.language)
 
 
-parser()
+weather_parser()
