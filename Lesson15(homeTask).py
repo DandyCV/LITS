@@ -4,12 +4,10 @@ import json
 
 def weather(city):
 
-    params = {
-        'APPID': 'b64a35cdd04a1caa08cf1d64cc08e0b1',        #персональний ключ для доступу до API
-        'lang': 'ua',
-        'q': city
-}
-    r = requests.get('https://api.openweathermap.org/data/2.5/weather?', params=params)
+    key = 'b64a35cdd04a1caa08cf1d64cc08e0b1'            #персональний ключ для доступу до API
+    request = 'https://api.openweathermap.org/data/2.5/weather?q={0}&APPID={1}&lang=ua'.format(city, key)
+
+    r = requests.get(request)
     data = json.loads(r.text)
 
     if data['cod'] == '404':
@@ -45,4 +43,4 @@ def weather(city):
 Напрямок вітру - {wind[deg]}'''.format(**data))
 
 
-weather('Чернівці')
+weather('Chernivtsi')
