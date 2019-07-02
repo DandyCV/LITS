@@ -1,19 +1,60 @@
 import socket
-import sys
+import threading
+import time
+import re
 
-HOST, PORT = "localhost", 8080
-data = "Hello"
+ip = 'localhost'
+port = 8080
+name = 'Dan'
 
-while True:
-    # Create a socket (SOCK_STREAM means a TCP socket)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        # Connect to server and send data
-        sock.connect((HOST, PORT))
 
-        sock.sendall(bytes(input() + "\n", "utf-8"))
+def json_func(message, user=None):
+    json_data = {
+        'name': name,
+        'message': message
+    }
+    if user:
+         json_data.setdefault('to', user)
+    data = '<client to server>: ' + str(json_data) +'<end>'
+    return data
 
-        # Receive data from the server and shut down
-        received = str(sock.recv(1024), "utf-8")
 
-        print("Sent:     {}".format(data))
-        print("Received: {}".format(received))
+def send():
+    while True:
+        message = input()
+        if message == '.exit':
+            break
+        elif message:
+            pattern = re.compile(r'\.\w+')
+            user = pattern.match(message)
+            if user:
+                user = user.group()
+                user = user[1:]
+                message = message[len(user)+2:]
+                data = json_func(message, user=user)
+            else:
+                data = json_func(message)
+            sock.sendall(bytes(data, 'ascii'))
+            time.sleep(1)
+
+
+def receive():
+    while True:
+        try:
+            response = str(sock.recv(1024), 'ascii')
+        except ConnectionAbortedError:
+            break
+        print("Received: {}".format(response))
+        time.sleep(1)
+
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    sock.connect((ip, port))
+
+    s_thread = threading.Thread(target=send, args=())
+    r_thread = threading.Thread(target=receive, args=())
+
+    s_thread.start()
+    r_thread.start()
+
+    s_thread.join()

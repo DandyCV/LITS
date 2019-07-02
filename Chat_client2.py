@@ -1,17 +1,41 @@
 import socket
-import sys
+import threading
+import time
 
-HOST, PORT = "localhost", 8080
-data = "Hay"
 
-# Create a socket (SOCK_STREAM means a TCP socket)
+ip = 'localhost'
+port = 8080
+
+
+def send():
+    while True:
+        message = input()
+        if message == '.exit':
+            break
+        if message:
+            sock.sendall(bytes(message, 'ascii'))
+            time.sleep(1)
+
+
+def receive():
+    while True:
+        try:
+            response = str(sock.recv(1024), 'ascii')
+        except ConnectionAbortedError:
+            break
+        print("Received: {}".format(response))
+        time.sleep(1)
+
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    # Connect to server and send data
-    sock.connect((HOST, PORT))
-    sock.sendall(bytes(data + "\n", "utf-8"))
+    sock.connect((ip, port))
 
-    # Receive data from the server and shut down
-    received = str(sock.recv(1024), "utf-8")
 
-print("Sent:     {}".format(data))
-print("Received: {}".format(received))
+    s_thread = threading.Thread(target=send, args=())
+    r_thread = threading.Thread(target=receive, args=())
+
+
+    s_thread.start()
+    r_thread.start()
+
+    s_thread.join()
