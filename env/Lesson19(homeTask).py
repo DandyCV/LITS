@@ -20,17 +20,20 @@ def get_dict():
 def get_dict_name(key):
     return dict[key]
 
+
 @post('/')
 def update_dict():
     new_dict = {'Saturday': request.json.get('Saturday'), 'Sunday': request.json.get('Sunday')}
     dict.update(new_dict)
     return dict
 
+
 @put('/<key>')
 def update_key(key):
     value = request.json.get(key)
     dict[key] = value
     return dict
+
 
 @delete('/<key>')
 def remove_key(key):
