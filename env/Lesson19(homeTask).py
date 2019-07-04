@@ -1,8 +1,8 @@
 import bottle
-from bottle import request
+from bottle import request, response
 from bottle import get, post, route, put, delete
 
-dict = {
+dict_ = {
     "Monday": "Kyiv",
     "Tuesday": "Lviv",
     "Wednesday": "Odessa",
@@ -13,32 +13,35 @@ dict = {
 
 @get('/')
 def get_dict():
-    return dict
+    return dict_
 
 
 @route('/<key:>')
 def get_dict_name(key):
-    return dict[key]
+    return {key: dict_[key]}
 
 
 @post('/')
 def update_dict():
-    new_dict = {'Saturday': request.json.get('Saturday'), 'Sunday': request.json.get('Sunday')}
-    dict.update(new_dict)
-    return dict
+    #new_dict = {'Saturday': request.json.get('Saturday'), 'Sunday': request.json.get('Sunday')}
+    dict.update(request.json)
+    response.status = 201
+    return request.json
 
 
 @put('/<key>')
 def update_key(key):
     value = request.json.get(key)
     dict[key] = value
-    return dict
+    response.status = 201
+    return {key: dict_[key]}
 
 
 @delete('/<key>')
 def remove_key(key):
-    dict.pop(key)
-    return dict
+    value = dict_.pop(key)
+    response.status = 204
+    return value
 
 
 bottle.run(port=8080)
