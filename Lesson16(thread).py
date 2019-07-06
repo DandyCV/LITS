@@ -10,7 +10,7 @@ def worker():
     for _ in range(5):
         with lock:
             count +=1
-            time.sleep(.005)
+            time.sleep(.5)
             print(count)
             count +=1
 
