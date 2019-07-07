@@ -11,9 +11,11 @@ def index(request):
 def named_index(request, name):
 
 
+
     html = f'<html><body>HELLO {name}</body></html>'
+    # json = dict_
 
     return HttpResponse(html, status=200)
 
-    return JsonResponse(html, status=200)
+    # return JsonResponse(json, status=200)
 # Create your views here.

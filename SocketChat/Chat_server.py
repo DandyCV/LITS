@@ -14,17 +14,23 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def connection_init(self, connection):
         self.connections.update({connection: '__NEW_USER__'})
         data, socket_status = self.message_processor(connection)
-        message = self.from_json(data)
-        name = message["name"]
-        response, name_status = self.name_check(name)
-        data, user = self.to_json(response)
-        self.socket_processor(data, user=user)
-        if name_status:
-            self.connections[connection] = name
-            print('New user connected name: {}'.format(name))
-        else:
+        try:
+            message = self.from_json(data)
+        except RuntimeError and IndexError:
+            print('Message to server not valid from: {}'.format(connection))
             self.connections.pop(connection)
-        return name_status
+            return False
+        else:
+            name = message["name"]
+            response, name_status = self.name_check(name)
+            data, user = self.to_json(response)
+            self.socket_processor(data, user=user)
+            if name_status:
+                self.connections[connection] = name
+                print('New user connected name: {}'.format(name))
+            else:
+                self.connections.pop(connection)
+            return name_status
 
     def name_check(self, user):
         valid_name = re.match(self.pattern_name, user)

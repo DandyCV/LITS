@@ -41,7 +41,7 @@ def update_key(key):
 def remove_key(key):
     value = dict_.pop(key)
     response.status = 204
-    return value
+    return {key: value}
 
 
 bottle.run(port=8080)
