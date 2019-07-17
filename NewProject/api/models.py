@@ -1,6 +1,5 @@
 from django.db import models
 
-
 # Create your models here.
 dict_ = {
     "Monday": "Kyiv",
@@ -20,3 +19,15 @@ class Article(models.Model):   #будуэ відображення запису
     # class Meta:
     #     table = 'article'   #назва таблиці
     #     order_by = ['publish']    #сортування по колонці
+
+
+class Comment(models.Model):
+    class Meta():
+        db_table = 'comment'
+        verbose_name = 'Comment'
+        verbous_name_plural = 'Comments'
+
+    user = models.ForeignKey('auth.models.User', related_name='author', on_delete=models.CASCADE)
+    text = models.TextField('Comment Text')
+    create = models.DateTimeField('add', auto_now_add=True)
+    moder = models.BooleanField(default=False)
