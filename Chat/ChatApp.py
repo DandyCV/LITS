@@ -21,6 +21,7 @@ class ClientApp(App):
     IP = 'localhost'
     PORT = 8080
     NAME = "S"
+    connection_status = False
 
     _pattern_end = re.compile(r'<end>$')
 
@@ -59,15 +60,6 @@ class ClientApp(App):
             text = 'from ' + name + ': ' + message
         return text
 
-    def sender(self):
-        connection_status = True
-        while connection_status:
-            message = input()
-            if message == '.exit':
-                connection_status = False
-            else:
-                connection_status = self.send(message)
-
     def send(self, message):
         pattern = re.compile(r'\.\w+')
         user = pattern.match(message)
@@ -99,7 +91,7 @@ class ClientApp(App):
                 if re.search(self._pattern_end, response):
                     end_find = True
         except ConnectionError:
-            message = 'Connection lost. Press Enter to exit.'
+            message = 'Disconnected from server.'
             print(message)
             self.print(message)
             return False
@@ -116,7 +108,7 @@ class ClientApp(App):
     def print(self, message):
         self.print_text(message)
 
-    def chat_connect(self, _):
+    def chat_connect(self):
         self.IP = self.ip_textinput.text
         self.PORT = int(self.port_textinput.text)
         self.NAME = self.name_textinput.text
@@ -125,19 +117,22 @@ class ClientApp(App):
             try:
                 self.sock.connect((self.IP, self.PORT))
 
-                s_thread = threading.Thread(target=self.sender, args=())
+                # s_thread = threading.Thread(target=self.sender, args=())
                 r_thread = threading.Thread(target=self.receiver, args=())
-
                 name_status = self.name_check()
                 if name_status:
-                    s_thread.start()
+                    # s_thread.start()
                     r_thread.start()
 
-                    s_thread.join()
+                    r_thread.join()
             except ConnectionRefusedError:
                 message = "Can't connect to this server."
                 print(message)
                 self.print(message)
+                return False
+
+    def disconnect(self):
+        self.sock.close()
 
 
 
@@ -153,14 +148,23 @@ class ClientApp(App):
         self.message = instance.text
         if self.message:
             instance.text = ''
-            self.chat_lable.text = self.chat_lable.text + ('\n') + time.strftime('%H:%M:%S: ') + self.message
+            if self.connection_status == True:
+            # self.chat_lable.text = self.chat_lable.text + ('\n') + time.strftime('%H:%M:%S: ') + self.message
+                self.send(self.message)
 
     def btn_press(self, instance):
         if instance.text == 'Connect':
-            instance.text = 'Disconnect'
-            instance.background_color = [0.5,0,0,1]
-            Clock.schedule_once(self.chat_connect, 2)
+            connect_thread = threading.Thread(target=self.chat_connect, args=())
+            if connect_thread.start() == None:
+                self.connection_status = True
+                instance.text = 'Disconnect'
+                instance.background_color = [0.5,0,0,1]
+            else:
+                self.connection_status = False
+
         elif instance.text == 'Disconnect':
+            self.disconnect()
+            self.connection_status = False
             instance.text = 'Connect'
             instance.background_color = [0,0.5,0,1]
 
@@ -171,12 +175,12 @@ class ClientApp(App):
 
         self.connect_button = Button(text = 'Connect',
                                 font_size=30,
-                                on_press=self.btn_press,
                                 background_color=[0,0.5,0,1],
                                 background_normal='',
                                 size_hint=[None, None],
                                 size=(180, 50),
                                 pos=(1050, 650))
+        self.connect_button.bind(on_press=self.btn_press)
 
         self.ip_lable = Label(text='IP',
                          font_size=30,
