@@ -1,11 +1,11 @@
-import socket, threading, re, json, time, sys, os
+import socket, threading, re, json, time
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
+from kivy.graphics import Color, Rectangle
 
 '''To start char enter connection parameters:
 server ip: IP
@@ -20,7 +20,7 @@ class ClientApp(App):
 
     IP = 'localhost'
     PORT = 8080
-    NAME = "S"
+    NAME = "Lits"
     connection_status = False
 
     _pattern_end = re.compile(r'<end>$')
@@ -68,6 +68,7 @@ class ClientApp(App):
             user = user[1:]
             message = message[len(user)+2:]
             data = self.json_send(message, user=user)
+            self.chat_lable.text = self.chat_lable.text+('\n')+time.strftime('%H:%M:%S: ')+'to '+user+': '+message
         else:
             data = self.json_send(message)
         try:
@@ -94,6 +95,7 @@ class ClientApp(App):
             message = 'Disconnected from server.'
             print(message)
             self.print(message)
+            self.connection_status = False
             return False
         else:
             message = self.json_receive(response)
@@ -117,19 +119,23 @@ class ClientApp(App):
             try:
                 self.sock.connect((self.IP, self.PORT))
 
-                # s_thread = threading.Thread(target=self.sender, args=())
                 r_thread = threading.Thread(target=self.receiver, args=())
                 name_status = self.name_check()
                 if name_status:
-                    # s_thread.start()
                     r_thread.start()
-
                     r_thread.join()
-            except ConnectionRefusedError:
-                message = "Can't connect to this server."
+            except TimeoutError:
+                message = "Can't connect to server (server timeout)."
                 print(message)
                 self.print(message)
-                return False
+            except ConnectionRefusedError:
+                message = "Can't connect to server (connection refused)."
+                print(message)
+                self.print(message)
+            except socket.gaierror:
+                message = "Can't connect to server (wrong IP)."
+                print(message)
+                self.print(message)
 
     def disconnect(self):
         self.sock.close()
@@ -149,25 +155,23 @@ class ClientApp(App):
         if self.message:
             instance.text = ''
             if self.connection_status == True:
-            # self.chat_lable.text = self.chat_lable.text + ('\n') + time.strftime('%H:%M:%S: ') + self.message
                 self.send(self.message)
 
     def btn_press(self, instance):
         if instance.text == 'Connect':
             connect_thread = threading.Thread(target=self.chat_connect, args=())
-            if connect_thread.start() == None:
+            self.connection_status = connect_thread.start()
+            time.sleep(1.5)
+            if threading.active_count() == 3:
                 self.connection_status = True
-                instance.text = 'Disconnect'
-                instance.background_color = [0.5,0,0,1]
-            else:
-                self.connection_status = False
+                self.connect_button.text = 'Disconnect'
+                self.connect_button.background_color = [0.5, 0, 0, 1]
 
         elif instance.text == 'Disconnect':
             self.disconnect()
             self.connection_status = False
             instance.text = 'Connect'
             instance.background_color = [0,0.5,0,1]
-
 
     def build(self):
 
@@ -222,13 +226,19 @@ class ClientApp(App):
                            text_size = (1260, 520),
                            size_hint=[None, None],
                            size=(1260, 520),
-                           pos=(10, 120))
+                           pos=(10, 120),
+                           color=[0,0,0,1],
+                           markup = True)
+        with fl.canvas:
+            Color(1, 1, 1, 1)
+            Rectangle(pos=(10, 120), size=(1260,520))
 
         self.message_textinput = TextInput(font_size=30,
                                 multiline=False,
                                 size_hint=[None, None],
                                 size=(1260, 100),
-                                pos=(10, 10))
+                                pos=(10, 10),
+                                text_validate_unfocus = False)
 
         self.message_textinput.bind(on_text_validate=self.on_enter)
 
@@ -246,6 +256,10 @@ class ClientApp(App):
         fl.add_widget(self.message_textinput)
         return fl
 
+    def on_stop(self):
+        self.disconnect()
+
 
 if __name__ == "__main__":
-    ClientApp().run()
+    client = ClientApp()
+    client.run()
