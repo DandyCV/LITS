@@ -227,8 +227,7 @@ class ClientApp(App):
                            size_hint=[None, None],
                            size=(1260, 520),
                            pos=(10, 120),
-                           color=[0,0,0,1],
-                           markup = True)
+                           color=[0,0,0,1])
         with fl.canvas:
             Color(1, 1, 1, 1)
             Rectangle(pos=(10, 120), size=(1260,520))
