@@ -55,6 +55,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             else:
                 for address in self.connections.keys():
                     address.sendall(response)
+
         except ConnectionError:
             return False
         return True
@@ -65,9 +66,15 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             user = message["to"]
         except KeyError:
             send_to = "<server to all clients>: "
+            data = send_to + json.dumps(message) + "<end>"
         else:
             send_to = "<server to client>: "
-        data = send_to + json.dumps(message) + "<end>"
+            if user != None and user not in self.connections.values():
+                user = self.connections[self.request]
+                data = send_to + '{"name": "server", "message": "User not found.", "to": "'+ user +'"}' + '<end>'
+            else:
+                data = send_to + json.dumps(message) + "<end>"
+        print(data)
         return data, user
 
     def from_json(self, message):
