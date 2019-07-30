@@ -30,3 +30,11 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
+
+
+class Comments(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(many=False,  read_only=True)
+    article = serializers.PrimaryKeyRelatedField(many=False, read_only=True)  # id user who wrote a comment
+    text = serializers.CharField(max_length=2500)
+    create = serializers.DateTimeField()
+    update = serializers.DateTimeField()
