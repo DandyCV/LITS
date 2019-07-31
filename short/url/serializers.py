@@ -4,11 +4,12 @@ from short_url import encode_url
 
 from.models import Url
 
+
 class UrlSerializer(serializers.ModelSerializer):
     short_url = serializers.CharField(read_only=True)
     class Meta:
         model = Url
-        fields = '__all__'
+        fields = ('url', 'short_url', 'created')
 
     def create(self, validated_data):
         url = Url.objects.create(**validated_data)
