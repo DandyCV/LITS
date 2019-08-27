@@ -6,23 +6,29 @@ import json
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
-    connections = dict()
-    name = "server"
-    pattern_end = re.compile(r'<end>$')
-    pattern_name = re.compile(r'\w+')
+    connections = dict()    # All connected users
+    name = "server" # Server name
+    pattern_end = re.compile(r'<end>$') # Data-end pattern
+    pattern_name = re.compile(r'\w+')   # Valid name pattern
+
+    def handle(self):
+        connection = self.request   # New socket
+        name_status = self.connection_init(connection)  # Name validation
+        if name_status:
+            self.message_server(connection) # If name valid start to send messages to new user
 
     def connection_init(self, connection):
-        self.connections.update({connection: '__NEW_USER__'})
+        self.connections.update({connection: '__NEW_USER__'})   # Add new user
         data, socket_status = self.message_processor(connection)
         try:
             message = self.from_json(data)
-        except RuntimeError and IndexError:
+        except RuntimeError and IndexError: # Disconnect user if message format is not valid
             print('Message to server not valid from: {}'.format(connection))
             self.connections.pop(connection)
             return False
-        else:
+        else:   # Register new user
             name = message["name"]
-            response, name_status = self.name_check(name)
+            response, name_status = self.name_check(name)   # Name validation
             data, user = self.to_json(response)
             self.socket_processor(data, user=user)
             if name_status:
@@ -33,6 +39,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             return name_status
 
     def name_check(self, user):
+        # Name validation func
         valid_name = re.match(self.pattern_name, user)
         users = list(self.connections.values())
         if not valid_name or user in users:
@@ -45,18 +52,48 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             name_status = True
         return response, name_status
 
+    def message_server(self, connection):
+        # Start to resend message
+        socket_status = True
+        connection_status = True
+        while socket_status and connection_status:
+            data, socket_status = self.message_processor(connection)    # Try to receive message
+            message = self.from_json(data)  # Pull out <sender_name>, <message>, <recipient_name>
+            json_data, user = self.to_json(message) # Frame to json-like
+            connection_status = self.socket_processor(json_data, user=user) # Send data with open sockets
+
+    def message_processor(self, connection):
+        # Reading data with 1024 bytes blocks from socket until <end> is find
+        try:
+            end_find = False
+            data = ''
+            while not end_find:
+                received_data = str(self.request.recv(1024), "ascii")
+                data = data + received_data
+                if re.search(self.pattern_end, data):
+                    end_find = True
+            socket_status = True
+        except ConnectionError: # Catching connection errors
+            name = self.connections.pop(connection)
+            user_msg = "{} disconnected".format(name)
+            json_msg = '{"name": "server", "message": "' + user_msg + '"}'
+            data = '<client to server>: ' + json_msg + '<end>'  # Message if connection lost
+            socket_status = False
+        return data, socket_status
+
     def socket_processor(self, data, user=None):
+        # Sending data to open sockets
         response = bytes(data, "ascii")
         try:
-            if user:
+            if user:    # For private message
                 for address in self.connections.keys():
                     if self.connections[address] == user:
                         address.sendall(response)
-            else:
+            else:   # For public message
                 for address in self.connections.keys():
                     address.sendall(response)
 
-        except ConnectionError:
+        except ConnectionError: # Catching connection errors
             return False
         return True
 
@@ -86,40 +123,6 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         print("{}: {}".format(ip, data_json))
         data = json.loads(data_json)
         return data
-
-    def message_processor(self, connection):
-        try:
-            end_find = False
-            data = ''
-            while not end_find:
-                received_data = str(self.request.recv(1024), "ascii")
-                data = data + received_data
-                if re.search(self.pattern_end, data):
-                    end_find = True
-            socket_status = True
-        except ConnectionError:
-            name = self.connections.pop(connection)
-            user_msg = "{} disconnected".format(name)
-            json_msg = '{"name": "server", "message": "' + user_msg + '"}'
-            data = '<client to server>: ' + json_msg + '<end>'
-            socket_status = False
-        return data, socket_status
-
-    def message_server(self, connection):
-        socket_status = True
-        connection_status = True
-        while socket_status and connection_status:
-            data, socket_status = self.message_processor(connection)
-            message = self.from_json(data)
-            json_data, user = self.to_json(message)
-            connection_status = self.socket_processor(json_data, user=user)
-
-    def handle(self):
-        connection = self.request
-        name_status = self.connection_init(connection)
-        if name_status:
-            self.message_server(connection)
-
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
